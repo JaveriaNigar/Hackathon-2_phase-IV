@@ -83,9 +83,3 @@ src_trash/
 coverage/
 .cache/
 hf-space/
-todo-ai/
-todo-chatbot/
-k8s/
-tests/
--a----         1/26/2026   3:27 AM          57344 test_debug.db
--a----         1/26/2026  12:16 AM          57344 todo_app.db
