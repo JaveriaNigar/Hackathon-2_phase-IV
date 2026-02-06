@@ -1,0 +1,130 @@
+# Default values for todo-chatbot.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global settings
+service:
+  port: 3000
+replicaCount: 1
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Frontend configuration (Next.js)
+frontend:
+  replicaCount: 1
+  image:
+    repository: "todo-frontend"
+    pullPolicy: IfNotPresent
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 3000
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: frontend.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  autoscaling:
+    enabled: false
+  env:
+    - name: BACKEND_URL
+      value: "http://todo-chatbot-backend:8000"
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+  resources: {}
+
+# Backend configuration (FastAPI)
+backend:
+  replicaCount: 1
+  image:
+    repository: "todo-backend"
+    pullPolicy: IfNotPresent
+    tag: ""
+  service:
+    type: ClusterIP
+    port: 8000
+  ingress:
+    enabled: false
+  autoscaling:
+    enabled: false
+  env:
+    - name: DATABASE_URL
+      value: "postgresql://user:password@postgres:5432/todo_db"
+    - name: SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: todo-backend-secret
+          key: secret_key
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+  resources: {}
+
+# Service account
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations/labels/security
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+securityContext: {}
+
+# Ingress (global)
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+# HTTPRoute
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - chart-example.local
+  rules: []
+
+# Autoscaling global
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# Volumes
+volumes: []
+volumeMounts: []
+
+# Node / scheduling
+nodeSelector: {}
+tolerations: []
+affinity: {}
